@@ -1,5 +1,5 @@
 /*
-SQLyog Professional v12.4.1 (64 bit)
+SQLyog Ultimate v12.4.1 (64 bit)
 MySQL - 11.5.2-MariaDB : Database - clinic
 *********************************************************************
 */
@@ -37,9 +37,13 @@ CREATE TABLE `appointments` (
   PRIMARY KEY (`id`),
   KEY `appointments_ibfk_1` (`registration_id`),
   CONSTRAINT `fk_registration` FOREIGN KEY (`registration_id`) REFERENCES `registration` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
 
 /*Data for the table `appointments` */
+
+insert  into `appointments`(`id`,`registration_id`,`appointment_date`,`appointment_time`,`doctor`,`email_account`,`notes`,`approved`,`created_at`,`updated_at`,`custom_id`,`user_id`,`status`) values 
+(1,4,'2026-08-11','11:00:00',NULL,NULL,NULL,0,'2026-08-11 11:28:21','2026-08-11 11:28:21',NULL,0,'booked'),
+(2,4,'2026-08-12','09:00:00',NULL,NULL,NULL,0,'2026-08-11 11:28:58','2026-08-11 11:46:42',NULL,0,'cancelled');
 
 /*Table structure for table `check_up` */
 
@@ -121,9 +125,12 @@ CREATE TABLE `doctors_appointments` (
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `doctor_name` varchar(255) DEFAULT 'Dra. Chona Mendoza',
   PRIMARY KEY (`appointment_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `doctors_appointments` */
+
+insert  into `doctors_appointments`(`appointment_id`,`appointment_date`,`appointment_time`,`appointment_reason`,`appointment_status`,`created_at`,`updated_at`,`doctor_name`) values 
+(1,'2025-02-18','08:00:00','for nutrition seminar','Scheduled','2025-02-11 18:20:02','2025-02-11 18:20:02','Dra. Chona Mendoza');
 
 /*Table structure for table `files` */
 
@@ -198,9 +205,17 @@ CREATE TABLE `medical` (
   PRIMARY KEY (`id`),
   KEY `medical_ibfk_1` (`registration_id`),
   CONSTRAINT `medical_ibfk_1` FOREIGN KEY (`registration_id`) REFERENCES `registration` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
 
 /*Data for the table `medical` */
+
+insert  into `medical`(`id`,`registration_id`,`ear_nose_throat_disorders`,`heart_conditions_high_blood_pressure`,`respiratory_tuberculosis_asthma`,`neurologic_migraines_frequent_headaches`,`gonorrhea_chlamydia_syphilis`,`last_update`,`no_of_pregnancy`,`last_menstrual`,`age_gestation`,`expected_date_confinement`) values 
+(1,1,1,1,1,1,1,'2025-02-12 16:27:50',1,'2025-02-14',1,'2025-02-14'),
+(2,1,2,1,2,2,1,'2025-02-12 16:30:50',1,'2025-02-12',1,'2025-02-14'),
+(3,2,1,1,1,1,1,'2025-02-12 16:40:21',1,'2025-02-14',1,'2025-02-20'),
+(4,3,2,2,2,2,2,'2026-08-11 09:54:14',1,'2026-08-09',1,'2026-08-29'),
+(5,4,2,2,2,2,2,'2026-08-11 10:35:59',1,'2026-08-11',1,'2026-08-28'),
+(6,5,2,2,2,2,2,'2026-08-11 11:49:14',1,'2026-08-28',1,'2026-08-28');
 
 /*Table structure for table `online_appointments` */
 
@@ -257,9 +272,16 @@ CREATE TABLE `registration` (
   PRIMARY KEY (`id`),
   KEY `fk_custom_id` (`custom_id`),
   KEY `patient_id` (`patient_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
 
 /*Data for the table `registration` */
+
+insert  into `registration`(`id`,`patient_id`,`philhealth_id`,`name`,`mname`,`lname`,`marital_status`,`husband_phone`,`patient_contact_no`,`birthday`,`address`,`age`,`husband`,`occupation`,`is_deleted`,`custom_id`,`created_at`,`last_update`,`appointment_date`,`appointment_time`,`appointment_status`,`email`,`updated_at`,`doctor`,`notes`,`next_checkup_date`) values 
+(1,0,'70989089890','mama','papa','ate ','single','908970','08080980-','2000-10-10','MANILA',24,'HELP','ME',0,NULL,'2025-02-12 16:27:32','2025-02-12 16:42:22','2025-02-14','14:30:00','booked','mapap68669@minduls.com','2025-02-12 16:42:22',NULL,'2025-02-12 16:27:32',NULL),
+(2,0,'98970798787','ka','kak','ka','single','97897087','9070990890','2000-10-10','kajkakjl',24,'kasdkljaskdj','ajkajkjal',0,NULL,'2025-02-12 16:39:59','2025-02-12 16:40:45','2025-02-13','09:00:00','booked','yicoj41447@minduls.com','2025-02-12 16:40:45',NULL,'2025-02-12 16:39:59',NULL),
+(3,0,'098809809890','User1','User1','User1','married','098090907887','090889898','2000-09-09','User1 Manila',25,'User2','Husband',0,NULL,'2026-08-11 09:53:59','2026-08-11 11:27:03','2026-08-18','09:00:00','follow_up','user1@user1.com','2026-08-11 11:27:03','Dr. Chona Mendoza','2026-08-11 10:21:36',NULL),
+(4,0,'09890898989','User3','User3','User3','single','9807098098','090880989080','2001-09-10','User3 Manila',24,'User3','User3',0,NULL,'2026-08-11 10:35:30','2026-08-11 11:27:53','2026-08-11','11:00:00','pending','tinasagad0@gmail.com','2026-08-11 11:27:53','Dr. Chona Mendoza','2026-08-11 11:27:53',NULL),
+(5,0,'667090-8087','Abm1','Agustin','Aham','single','43948320948','08909','2019-02-12','Ict ',7,'Ict','Ict',0,NULL,'2026-08-11 11:48:41','2026-08-11 12:57:14','2026-08-11','16:00:00','booked','myeclass2021@gmail.com','2026-08-11 12:57:14','Dr. Chona Mendoza','2026-08-11 11:48:41',NULL);
 
 /*Table structure for table `scheduling_settings` */
 
@@ -313,9 +335,9 @@ CREATE TABLE `users` (
 /*Data for the table `users` */
 
 insert  into `users`(`id`,`email`,`firstname`,`lastname`,`birthday`,`mobile`,`password`,`created_at`,`user_level`,`username`) values 
-(1,'admin@admin.com','admin','admin','2000-10-06','09543453933','$2y$10$qFWvB9rwmFvmRDisGSljouEPzMpVlszwqk3kibAHsAqG/tS7ym1a6','2025-02-24 18:09:23','admin','admin'),
-(2,'nurse@nurse.com','nurse','nurse','2000-06-16','09446555555','$2y$10$CB6G6mjAnyn5FkHo.r6Q9O5jthpm8QYY7JURbROUIlDyYWrpxDQCq','2025-02-24 18:10:32','secretary','nurse'),
-(3,'doctor@doctor.com','doctor','mendoza','2000-11-06','01234564656','$2y$10$7aOCB3nSArP24JAm0z6xT.BZI30JzV1Px8sqxdfqwEV8OMryEkscK','2025-02-24 18:11:25','doctor','doctor');
+(1,'admin@admin.com','admin','admin','2026-08-11','09000000000','$2y$10$gMpAy0d6siAoG/l/GF9V5esXHRBNkkUT2/iUjFale4l6AWZnAOLyC','2026-08-11 09:50:13','admin','admin'),
+(2,'nurse@nurse.com','nurse','nurse','2026-08-11','09000000','$2y$10$Bu.k2a8oP/jsfM0NPxDPTuv1O8rttlAL7qXP4XRAvJphehAgUT8Wa','2026-08-11 09:51:00','secretary','nurse'),
+(3,'doctor@doctor.com','doctor','doctor','2026-08-11','09000000000','$2y$10$eZCaSmumqkARk/oWlPft9eHA3LhqzxhQ84cxNwbw/K9JZ5j.Ehi36','2026-08-11 09:51:30','doctor','doctor');
 
 /*Table structure for table `vital_signs` */
 
@@ -338,9 +360,12 @@ CREATE TABLE `vital_signs` (
   PRIMARY KEY (`id`),
   KEY `vital_signs_ibfk_1` (`registration_id`),
   CONSTRAINT `vital_signs_ibfk_1` FOREIGN KEY (`registration_id`) REFERENCES `registration` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
 
 /*Data for the table `vital_signs` */
+
+insert  into `vital_signs`(`id`,`registration_id`,`blood_pressure_systolic`,`blood_pressure_diastolic`,`pulse_rate`,`respiration_rate`,`temperature`,`oxygen_saturation`,`height`,`weight`,`bmi`,`checkup_date`,`created_at`) values 
+(1,1,1,1,1,1,1.0,1,1.00,1.00,1.00,'2025-02-12 16:30:36','2025-02-12 00:00:00');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
