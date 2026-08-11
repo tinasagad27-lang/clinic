@@ -41,3 +41,11 @@ SECURITY = SSL
 SMTP SERVER = stmp.gmail.com
 password = yourapppassword
 https://www.gmass.co/smtp-test
+
+
+
+
+ACCOUNT TO OPEN USERLEVEL
+overall
+username : admin
+password : admin
