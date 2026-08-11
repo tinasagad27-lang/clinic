@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Registration Form</title>
-    
+
     <style>
         body {
             margin: 20px;
@@ -41,9 +41,10 @@
         .form-group {
             margin-bottom: 15px;
         }
-		.form-control {
-			text-transform: capitalize;
-		}
+
+        .form-control {
+            text-transform: capitalize;
+        }
     </style>
 </head>
 
@@ -103,15 +104,15 @@
                             <input type="number" class="form-control" id="philhealth_id" name="philhealth_id">
                         </div>
                         <div class="col-md-6">
-    <label for="email">Email:</label>
-    <input type="email" class="form-control" id="email" name="email" style="text-transform: lowercase;">
-</div>
+                            <label for="email">Email:</label>
+                            <input type="email" class="form-control" id="email" name="email" style="text-transform: lowercase;">
+                        </div>
 
-<script>
-    document.getElementById("email").addEventListener("input", function () {
-        this.value = this.value.toLowerCase();
-    });
-</script>
+                        <script>
+                            document.getElementById("email").addEventListener("input", function() {
+                                this.value = this.value.toLowerCase();
+                            });
+                        </script>
 
                     </div>
                 </div>
@@ -135,6 +136,18 @@
                     </div>
                 </div>
 
+                <!-- Doctor Name Section -->
+                <div class="card p-4 mb-4 shadow-sm">
+                    <h5 class="card-title bg-success text-white p-2 rounded">Doctor's Name</h5>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="doctor">Doctor's Name:</label>
+                            <input type="text" class="form-control" id="doctor" name="doctor" value="Dr. Chona Mendoza">
+
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Submit Button -->
                 <div class="text-center">
                     <button type="submit" class="btn btn-success px-4">Next</button>
@@ -150,26 +163,26 @@
 </body>
 <script>
     document.getElementById('birthday').addEventListener('change', function() {
-        const birthdayInput = this.value; 
-        const birthday = new Date(birthdayInput); 
-        const today = new Date(); 
+        const birthdayInput = this.value;
+        const birthday = new Date(birthdayInput);
+        const today = new Date();
 
-        let age = today.getFullYear() - birthday.getFullYear(); 
-        
+        let age = today.getFullYear() - birthday.getFullYear();
+
         const monthDiff = today.getMonth() - birthday.getMonth();
         if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthday.getDate())) {
-            age--; 
+            age--;
         }
 
-     
-        const ageInput = document.getElementById('age');
-        ageInput.value = age; 
 
-        
+        const ageInput = document.getElementById('age');
+        ageInput.value = age;
+
+
         if (age < 0) {
-            ageInput.style.color = 'red'; 
+            ageInput.style.color = 'red';
         } else {
-            ageInput.style.color = ''; 
+            ageInput.style.color = '';
         }
     });
 </script>

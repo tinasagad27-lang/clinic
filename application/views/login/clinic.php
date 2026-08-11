@@ -380,8 +380,24 @@
                 <section id="book-appointment" class="bg-green-custom text-white p-6 rounded-lg mt-6 shadow-md">
                     <h2 class="text-2xl font-bold mb-4 text-center">Book an Appointment</h2>
                     <p class="text-2xl font-bold mb-4 text-center">Please book an appointment 3 - 4 business days</p>
-                    <form action="<?= base_url('onlineappointments/onlinestore'); ?>" method="post" class="space-y-4">
 
+                    <div class="text-center mb-4 space-x-4">
+                        <button id="newMemberButton"
+                            class="bg-white text-green-600 font-semibold py-3 px-6 rounded-full shadow-md border border-green-600 
+               hover:bg-gray-200 hover:text-green-800 transition-transform transform hover:scale-105">
+                            🆕 New Member
+                        </button>
+
+                        <button id="existingMemberButton"
+                            class="bg-white text-green-600 font-semibold py-3 px-6 rounded-full shadow-md border border-green-600 
+               hover:bg-gray-200 hover:text-green-800 transition-transform transform hover:scale-105">
+                            🏥 Existing Member
+                        </button>
+                    </div>
+
+
+                    <form id="newMemberForm" action="<?= base_url('onlineappointments/onlinestore'); ?>" method="post" class="space-y-4 hidden">
+                        <input type="hidden" id="registration_id" name="registration_id" value="<?= isset($registration_id) ? $registration_id : ''; ?>">
 
                         <!-- Email -->
                         <div class="flex flex-col mb-3">
@@ -449,8 +465,6 @@
                             }
                         </script>
 
-
-
                         <!-- Address -->
                         <div class="flex flex-col mb-3">
                             <label for="address" class="text-sm font-medium mb-1">Address:</label>
@@ -497,7 +511,6 @@
                                 required>
                         </div>
 
-
                         <script>
                             const appointmentDateInput = document.getElementById('appointment_date');
 
@@ -513,15 +526,11 @@
                             });
                         </script>
 
-
-
                         <div class="flex flex-col mb-3">
                             <label for="appointment_time" class="text-sm font-medium mb-1">Appointment Time:</label>
                             <select class="bg-gray-100 border border-gray-300 rounded-lg p-2 text-black focus:outline-none focus:ring-2 focus:ring-green-500" id="appointment_time" name="appointment_time" aria-label="Appointment Time" required>
-
                             </select>
                         </div>
-
 
                         <div class="bg-gray-100 text-gray-800 p-3 rounded-lg mb-4">
                             <h3 class="font-semibold mb-2 text-center">Clinic Hours</h3>
@@ -536,37 +545,80 @@
                             </ul>
                         </div>
 
-
-                        <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-200 w-full">Book Now</button>
+                        <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition duration-200 w-full">Next</button>
                     </form>
+
+                    <div id="existingMemberForm" class="hidden text-center mt-6">
+                        <a href="<?= base_url('appointments/search_form') ?>"
+                            class="bg-white text-green-600 font-semibold py-3 px-6 rounded-full shadow-md hover:bg-gray-200 hover:text-green-800 transition-transform transform hover:scale-105 inline-block border border-green-600">
+                            ✅ Already a member? Book an Appointment!
+                        </a>
+                    </div>
+
+
                 </section>
             </div>
 
-            <!-- Add some CSS for the container (if needed) -->
-            <style>
-                .formcontainer {
-                    max-width: 800px;
-                    /* Adjust this value to change the maximum width */
-                    margin: 0 auto;
-                    /* Center the container */
-                }
+            <script>
+                document.getElementById('newMemberButton').addEventListener('click', function() {
+                    document.getElementById('newMemberForm').classList.remove('hidden');
+                    document.getElementById('existingMemberForm').classList.add('hidden');
+                });
 
-                .bg-green-custom {
-                    background-color: #6bbf77;
-
-                }
-            </style>
-
-
-
-            <!-- Appointment Calendar -->
-            <section id="book-appointment" class="max-w-4xl mx-auto mt-8">
-                <h2 class="text-3xl font-bold mb-4 text-center text-green-custom">Book Your Appointment</h2>
-                <div id="calendar" class="mt-4"></div>
+                document.getElementById('existingMemberButton').addEventListener('click', function() {
+                    document.getElementById('newMemberForm').classList.add('hidden');
+                    document.getElementById('existingMemberForm').classList.remove('hidden');
+                });
+            </script>
             </section>
-        </main>
+    </div>
+    <script>
+        document.querySelectorAll("input[type='text'], input[type='tel'], input[type='date']").forEach(function(input) {
+            input.addEventListener("input", function() {
+                this.value = this.value
+                    .toLowerCase() // Ensure lowercase for non-initial letters
+                    .replace(/\b\w/g, function(char) {
+                        return char.toUpperCase(); // Capitalize each word
+                    });
+            });
+        });
+    </script>
 
-        <!-- <footer class="text-center py-4">
+    <!-- <script>
+    document.getElementById('nextButton').addEventListener('click', function() {
+        const registrationId = document.getElementById('registration_id').value;
+        if (registrationId) {
+            window.location.href = "<?= base_url('medication/online_medication/'); ?>" + registrationId;
+        } else {
+            alert("Please book an appointment first.");
+        }
+    });
+</script> -->
+    <!-- Add some CSS for the container (if needed) -->
+    <style>
+        .formcontainer {
+            max-width: 800px;
+            /* Adjust this value to change the maximum width */
+            margin: 0 auto;
+            /* Center the container */
+        }
+
+        .bg-green-custom {
+            background-color: #6bbf77;
+
+        }
+    </style>
+
+
+
+    <!-- Appointment Calendar -->
+    <section id="book-appointment" class="max-w-4xl mx-auto mt-8">
+        <h2 class="text-3xl font-bold mb-4 text-center text-green-custom">Book Your Appointment</h2>
+        <div id="calendar" class="mt-4"></div>
+    </section>
+    </main>
+
+    <!-- <footer class="text-center py-4">
     <p class="text-gray-600">© 2024 OBGYN Clinic. All Rights Reserved.</p>
 </footer> -->
     </div>

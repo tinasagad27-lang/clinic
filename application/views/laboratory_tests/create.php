@@ -8,7 +8,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Selected Patient</h5>
                     <p class="card-text">
-                        <strong>Name:</strong> 
+                        <strong>Name:</strong>
                         <?= htmlspecialchars($patient['name']); ?>
                         <?= !empty($patient['mname']) ? htmlspecialchars($patient['mname']) . ' ' : ''; ?>
                         <?= htmlspecialchars($patient['lname']); ?>
@@ -76,7 +76,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="created_at" class="form-label">Date Record:</label>
                                 <input type="datetime-local" name="created_at" class="form-control"
-                                    value="<?= isset($test) && !empty($test['created_at']) ? date('Y-m-d\TH:i', strtotime($test['created_at'] . ' +8 hours')) : date('Y-m-d\TH:i'); ?>" 
+                                    value="<?= isset($test) && !empty($test['created_at']) ? date('Y-m-d\TH:i', strtotime($test['created_at'] . ' +8 hours')) : date('Y-m-d\TH:i'); ?>"
                                     readonly>
                             </div>
                         </div>
@@ -86,7 +86,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="last_update" class="form-label">Last Update:</label>
                                 <input type="datetime-local" name="last_update" class="form-control"
-                                    value="<?= isset($test) && !empty($test['last_update']) ? date('Y-m-d\TH:i', strtotime($test['last_update'] . ' +8 hours')) : date('Y-m-d\TH:i'); ?>" 
+                                    value="<?= isset($test) && !empty($test['last_update']) ? date('Y-m-d\TH:i', strtotime($test['last_update'] . ' +8 hours')) : date('Y-m-d\TH:i'); ?>"
                                     readonly>
                             </div>
                         </div>

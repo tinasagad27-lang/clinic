@@ -35,7 +35,7 @@
 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="<?= site_url('laboratorytests/index'); ?>" class="btn btn-secondary">Back to List</a>
-                    <a href="<?= site_url('laboratorytests/create'); ?>" class="btn btn-success">Add New Test</a>
+                    <!-- <a href="<?= site_url('laboratorytests/create'); ?>" class="btn btn-success">Add New Test</a> -->
                 </div>
             </div>
         </div>

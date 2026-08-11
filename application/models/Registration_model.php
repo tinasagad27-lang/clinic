@@ -8,30 +8,59 @@ class Registration_model extends CI_Model
         $this->load->helper('string');
         $this->table = 'registration';
     }
-//pagination
-public function update_registration($data)
-{
-    $this->db->where('id', $data['id']);
-    $this->db->where('is_deleted', 0); // Add the condition if needed
-    $this->db->update('registration', $data);
-}
-public function get_tomorrows_appointments() {
-    $tomorrow = date('Y-m-d', strtotime('+1 day'));
-    $this->db->where('appointment_date', $tomorrow);
-    $this->db->where('appointment_status', 'booked');
-    return $this->db->get('registration')->result_array();
-}
+    //pagination
+    public function update_registration($data)
+    {
+        $this->db->where('id', $data['id']);
+        $this->db->where('is_deleted', 0); // Add the condition if needed
+        $this->db->update('registration', $data);
+    }
+    public function get_tomorrows_appointments()
+    {
+        $tomorrow = date('Y-m-d', strtotime('+1 day'));
+        $this->db->where('appointment_date', $tomorrow);
+        $this->db->where('appointment_status', 'booked');
+        return $this->db->get('registration')->result_array();
+    }
+    public function get_patient_by_id_medication($registration_id)
+    {
+        $this->db->where('id', $registration_id);
+        $query = $this->db->get('registration');
+        return $query->row_array(); // Returns patient details
+    }
 
+    public function save_registration_and_update_status($data, $appointmentId = null, $newStatus = null)
+    {
+        $this->db->trans_start(); // Start a transaction
+
+        // Insert registration data
+        $inserted = $this->db->insert($this->table, $data);
+        $registrationId = $this->db->insert_id(); // Get inserted ID
+
+        // If an appointment ID is provided, update the status
+        if ($appointmentId !== null && $newStatus !== null) {
+            $this->db->where('id', $appointmentId);
+            $this->db->update('appointments', ['status' => $newStatus]);
+        }
+
+        $this->db->trans_complete(); // Complete the transaction
+
+        if ($this->db->trans_status() === FALSE) {
+            return false; // If any query fails, rollback
+        }
+
+        return $registrationId; // Return the new registration ID
+    }
 
     public function insert_registration($data)
     {
         return $this->db->insert($this->table, $data);
     }
     public function update_status($appointmentId, $newStatus)
-{
-    $this->db->where('id', $appointmentId);
-    return $this->db->update('appointments', ['status' => $newStatus]);
-}
+    {
+        $this->db->where('id', $appointmentId);
+        return $this->db->update('appointments', ['status' => $newStatus]);
+    }
 
 
     public function rows()
@@ -55,27 +84,38 @@ public function get_tomorrows_appointments() {
     // {
     //     return $this->db->update($this->table, $data, array('id' => $id, 'is_deleted' => 0));
     // }
-    public function get_available_slots() {
+    public function get_available_slots()
+    {
         $this->load->model('OnlineAppointments_model');
-        
+
         $date = $this->input->get('date');
-        
+
         if ($date) {
             $existingAppointments = $this->OnlineAppointments_model->get_booked_slots($date);
-            
+
             // Define your time slots
             $timeSlots = [
-                '09:00', '09:30', '10:00', '10:30',
-                '13:00', '13:30', '14:00',
-                '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'
+                '09:00',
+                '09:30',
+                '10:00',
+                '10:30',
+                '13:00',
+                '13:30',
+                '14:00',
+                '14:30',
+                '15:00',
+                '15:30',
+                '16:00',
+                '16:30',
+                '17:00'
             ];
-            
+
             // Define lunch break slots
-            $lunchBreakSlots =  ['11:30', '17:30','17:00', '15:30d'];
-           
+            $lunchBreakSlots =  ['11:30', '17:30', '17:00', '15:30d'];
+
             // Filter out booked time slots and lunch break slots
             $availableSlots = array_diff($timeSlots, $existingAppointments, $lunchBreakSlots);
-            
+
             // Return available slots as JSON
             echo json_encode(['availableSlots' => array_values($availableSlots)]);
         }
@@ -141,8 +181,7 @@ public function get_tomorrows_appointments() {
 
     public function get_registration_by_id($id)
     {
-        $query = $this->db->get_where('registration', array('id' => $id));
-        return $query->row_array();
+        return $this->db->get_where('registration', ['id' => $id])->row_array();
     }
 
     public function get_patient_by_name($name = '', $lname = '')
@@ -301,15 +340,18 @@ public function get_tomorrows_appointments() {
         return $this->db->count_all('registration');
     }
 
-    public function get_registrations_by_date($start_date, $end_date)
-{
-    $this->db->select('name, mname, lname, created_at'); // Add the necessary fields
-    $this->db->from('registration');
-    $this->db->where('created_at >=', $start_date . ' 00:00:00'); // Start of date range
-    $this->db->where('created_at <=', $end_date . ' 23:59:59'); // End of date range
-    $query = $this->db->get();
-    return $query->result();
-}
+    public function get_registrations_with_service_type($start_date, $end_date)
+    {
+        $this->db->select('registration.name, registration.mname, registration.lname, registration.created_at, registration.doctor, diagnosis_types.type as service_type');
+        $this->db->from('registration');
+        $this->db->join('laboratory_tests', 'laboratory_tests.registration_id = registration.id', 'left');
+        $this->db->join('diagnosis_types', 'laboratory_tests.diagnosis_type_id = diagnosis_types.id', 'left');
+        $this->db->where('registration.created_at >=', $start_date . ' 00:00:00');
+        $this->db->where('registration.created_at <=', $end_date . ' 23:59:59');
+        $query = $this->db->get();
+        return $query->result();
+    }
+
 
     public function get_patient_by_custom_id($custom_id)
     {
@@ -349,7 +391,7 @@ public function get_tomorrows_appointments() {
             return []; // Return an empty array if no data is found
         }
     }
-    
+
     public function process_appointment($data)
     {
         // Calculate age based on birthday
@@ -384,8 +426,9 @@ public function get_tomorrows_appointments() {
     public function onlineupdate($id, $data)
     {
         $this->db->where('id', $id);
-        return $this->db->update('registration', $data);
+        return $this->db->update('registration', $data); // Ensure 'registration' is the correct table name
     }
+
 
     public function getRegistrationById($id)
     {
@@ -414,13 +457,13 @@ public function get_tomorrows_appointments() {
     //     return $query->row_array(); // Returns an associative array or null
     // }
     public function check_appointment_exists($appointment_date, $appointment_time)
-{
-    $this->db->where('appointment_date', $appointment_date);
-    $this->db->where('appointment_time', $appointment_time);
-    $query = $this->db->get('registration');
+    {
+        $this->db->where('appointment_date', $appointment_date);
+        $this->db->where('appointment_time', $appointment_time);
+        $query = $this->db->get('registration');
 
-    return $query->row_array(); // Return the first matching record, or false if none exists
-}
+        return $query->row_array(); // Return the first matching record, or false if none exists
+    }
 
 
 
@@ -448,6 +491,11 @@ public function get_tomorrows_appointments() {
             return false; // Optionally, log the query here for debugging
         }
     }
-    
-    
+
+    public function get_doctor_by_id($doctor_id)
+    {
+        $this->db->where('id', $doctor_id);
+        $query = $this->db->get('doctor');
+        return $query->row_array(); // Return doctor details
+    }
 }

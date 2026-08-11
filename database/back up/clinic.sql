@@ -1,5 +1,5 @@
 /*
-SQLyog Professional v12.4.1 (64 bit)
+SQLyog Ultimate v12.4.1 (64 bit)
 MySQL - 11.5.2-MariaDB : Database - clinic
 *********************************************************************
 */
@@ -121,9 +121,12 @@ CREATE TABLE `doctors_appointments` (
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `doctor_name` varchar(255) DEFAULT 'Dra. Chona Mendoza',
   PRIMARY KEY (`appointment_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 /*Data for the table `doctors_appointments` */
+
+insert  into `doctors_appointments`(`appointment_id`,`appointment_date`,`appointment_time`,`appointment_reason`,`appointment_status`,`created_at`,`updated_at`,`doctor_name`) values 
+(1,'2025-02-18','08:00:00','for nutrition seminar','Scheduled','2025-02-11 18:20:02','2025-02-11 18:20:02','Dra. Chona Mendoza');
 
 /*Table structure for table `files` */
 
@@ -198,9 +201,14 @@ CREATE TABLE `medical` (
   PRIMARY KEY (`id`),
   KEY `medical_ibfk_1` (`registration_id`),
   CONSTRAINT `medical_ibfk_1` FOREIGN KEY (`registration_id`) REFERENCES `registration` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
 
 /*Data for the table `medical` */
+
+insert  into `medical`(`id`,`registration_id`,`ear_nose_throat_disorders`,`heart_conditions_high_blood_pressure`,`respiratory_tuberculosis_asthma`,`neurologic_migraines_frequent_headaches`,`gonorrhea_chlamydia_syphilis`,`last_update`,`no_of_pregnancy`,`last_menstrual`,`age_gestation`,`expected_date_confinement`) values 
+(1,1,1,1,1,1,1,'2025-02-12 16:27:50',1,'2025-02-14',1,'2025-02-14'),
+(2,1,2,1,2,2,1,'2025-02-12 16:30:50',1,'2025-02-12',1,'2025-02-14'),
+(3,2,1,1,1,1,1,'2025-02-12 16:40:21',1,'2025-02-14',1,'2025-02-20');
 
 /*Table structure for table `online_appointments` */
 
@@ -257,9 +265,13 @@ CREATE TABLE `registration` (
   PRIMARY KEY (`id`),
   KEY `fk_custom_id` (`custom_id`),
   KEY `patient_id` (`patient_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
 
 /*Data for the table `registration` */
+
+insert  into `registration`(`id`,`patient_id`,`philhealth_id`,`name`,`mname`,`lname`,`marital_status`,`husband_phone`,`patient_contact_no`,`birthday`,`address`,`age`,`husband`,`occupation`,`is_deleted`,`custom_id`,`created_at`,`last_update`,`appointment_date`,`appointment_time`,`appointment_status`,`email`,`updated_at`,`doctor`,`notes`,`next_checkup_date`) values 
+(1,0,'70989089890','mama','papa','ate ','single','908970','08080980-','2000-10-10','MANILA',24,'HELP','ME',0,NULL,'2025-02-12 16:27:32','2025-02-12 16:42:22','2025-02-14','14:30:00','booked','mapap68669@minduls.com','2025-02-12 16:42:22',NULL,'2025-02-12 16:27:32',NULL),
+(2,0,'98970798787','ka','kak','ka','single','97897087','9070990890','2000-10-10','kajkakjl',24,'kasdkljaskdj','ajkajkjal',0,NULL,'2025-02-12 16:39:59','2025-02-12 16:40:45','2025-02-13','09:00:00','booked','yicoj41447@minduls.com','2025-02-12 16:40:45',NULL,'2025-02-12 16:39:59',NULL);
 
 /*Table structure for table `scheduling_settings` */
 
@@ -308,14 +320,16 @@ CREATE TABLE `users` (
   `username` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
 
 /*Data for the table `users` */
 
 insert  into `users`(`id`,`email`,`firstname`,`lastname`,`birthday`,`mobile`,`password`,`created_at`,`user_level`,`username`) values 
-(1,'admin@admin.com','admin','admin','2000-10-06','09543453933','$2y$10$qFWvB9rwmFvmRDisGSljouEPzMpVlszwqk3kibAHsAqG/tS7ym1a6','2025-02-24 18:09:23','admin','admin'),
-(2,'nurse@nurse.com','nurse','nurse','2000-06-16','09446555555','$2y$10$CB6G6mjAnyn5FkHo.r6Q9O5jthpm8QYY7JURbROUIlDyYWrpxDQCq','2025-02-24 18:10:32','secretary','nurse'),
-(3,'doctor@doctor.com','doctor','mendoza','2000-11-06','01234564656','$2y$10$7aOCB3nSArP24JAm0z6xT.BZI30JzV1Px8sqxdfqwEV8OMryEkscK','2025-02-24 18:11:25','doctor','doctor');
+(1,'admin@admin.com','admin','admin','2024-09-10','09750019708','$2y$10$yr0XKt6d0fPzAa/.04b0Nu3Tej9DjBbdRbmxEYG5Ku/KORgsGNJXO','2024-08-03 13:18:27','admin','admin'),
+(2,'user@user.com','nurse','sagad','2000-06-16','091048487454','$2y$10$CldfyL8onBJYvzomClLkHu7yr08sSr/q54uFcMjdSJK75n1/yeR52','2024-08-17 13:26:04','secretary','user'),
+(4,'doctor@email.com','Doctor','Chona','1995-12-11','09750019708','$2y$10$ptDV/6enHvHbOES/yqwWRe/IwDhfEjbOKrjYMNCxX8.VoPPPq90XO','2024-12-10 16:18:23','doctor','doctor'),
+(8,'user1@gmail.com','user1','user1','2025-01-06','2414545324545','$2y$10$Bipe0Q9LUdA7xSOqk.wULuxMslqiG1axLKiFMkC4du2Y0W5NPlek.','2025-01-08 08:45:20','secretary','user1'),
+(9,'liba@email.com','liba','liba','0490-02-08','09384908','$2y$10$eQXsgR/yDpoZ2va5Q8T9GOJi5yGEd3I6XQMBXGmHJIAcveOILkIG.','2025-01-09 10:30:45','secretary','liba');
 
 /*Table structure for table `vital_signs` */
 
@@ -338,9 +352,12 @@ CREATE TABLE `vital_signs` (
   PRIMARY KEY (`id`),
   KEY `vital_signs_ibfk_1` (`registration_id`),
   CONSTRAINT `vital_signs_ibfk_1` FOREIGN KEY (`registration_id`) REFERENCES `registration` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_uca1400_ai_ci;
 
 /*Data for the table `vital_signs` */
+
+insert  into `vital_signs`(`id`,`registration_id`,`blood_pressure_systolic`,`blood_pressure_diastolic`,`pulse_rate`,`respiration_rate`,`temperature`,`oxygen_saturation`,`height`,`weight`,`bmi`,`checkup_date`,`created_at`) values 
+(1,1,1,1,1,1,1.0,1,1.00,1.00,1.00,'2025-02-12 16:30:36','2025-02-12 00:00:00');
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

@@ -1,4 +1,17 @@
 <!-- Main Layout -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment</title>
+    <!-- Include CSS libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+</head>
+<body>
+ </body>
+ </html>
 <div id="layoutSidenav_content">
     <main class="container mt-4">
         <div class="container h-10">
@@ -8,11 +21,8 @@
                         <h1 class="mt-4">Set Appointment</h1>
                         <?php echo validation_errors('<div class="alert alert-danger">', '</div>'); ?>
                         <?php echo form_open('appointments/create', ['class' => 'needs-validation', 'novalidate' => '']); ?>
-<!-- Hidden input for patient_id -->
-<input type="hidden" name="patient_id" value="<?php echo isset($patient_id) ? htmlspecialchars($patient_id) : ''; ?>">
-
-                        <!-- Button wrapped in a div for centering -->
-                        
+                        <!-- Hidden input for patient_id -->
+                        <input type="hidden" name="patient_id" value="<?php echo isset($patient_id) ? htmlspecialchars($patient_id) : ''; ?>">
 
                         <?php if ($this->session->flashdata('error_message')): ?>
                             <div class="alert alert-danger">
@@ -24,11 +34,8 @@
                         <input type="hidden" name="patient_id" value="<?php echo isset($patient) && $patient ? $patient['id'] : ''; ?>">
 
                         <div>
-						<div>
-    
-    <p style="font-weight: bold; font-size: 40px;"><?php echo htmlspecialchars(ucwords($patient['name'] . ' ' . $patient['mname'] . ' ' . $patient['lname'])); ?></p>
-</div>
-
+                            <p style="font-weight: bold; font-size: 40px;"><?php echo htmlspecialchars(ucwords($patient['name'] . ' ' . $patient['mname'] . ' ' . $patient['lname'])); ?></p>
+                        </div>
 
                         <div class="mb-3">
                             <label for="appointment_date" class="form-label">Appointment Date</label>
@@ -49,48 +56,48 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-						<div class="form-group mb-3">
-    <label for="doctor">Doctor's Name:</label>
-    <input type="text" class="form-control" id="doctor" name="doctor" value="Dr. Chona Mendoza" required>
+                        <?php
+                        $user_level = $this->session->userdata('user_level'); // Get user_level from session
+                        ?>
+
+                        <?php if ($user_level === "doctor"): ?>
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Doctor's Notes (Date)</label>
+                                <input type="date" name="notes" id="notes" class="form-control" value="<?= isset($appointment['notes']) ? date('Y-m-d', strtotime($appointment['notes'])) : date('Y-m-d'); ?>" />
+                            </div>
+                        <?php endif; ?>
+
+                        <?php 
+$user_level = $this->session->userdata('user_level'); 
+$allowed_roles = ['doctor', 'admin', 'secretary'];
+?>
+
+<div class="mb-3">
+    <label for="status" class="form-label">Status</label>
+
+    <?php if (in_array($user_level, $allowed_roles)): ?>
+        <!-- If user is doctor, admin, or secretary, show full dropdown -->
+        <select name="status" id="status" class="form-control" required>
+            <option value="">Select Status</option>
+            <option value="pending">Pending</option>
+            <option value="booked">Booked</option>
+            <option value="cancelled">Cancelled</option>
+        </select>
+    <?php else: ?>
+        <!-- If user is NOT doctor, admin, or secretary, set status to Pending automatically -->
+        <input type="hidden" name="status" value="pending">
+        <input type="text" class="form-control" value="Pending" disabled>
+    <?php endif; ?>
+
+    <div class="invalid-feedback">
+        Please select a status.
+    </div>
 </div>
 
+<div class="text-center mt-4">
+    <button type="submit" class="btn btn-primary">Create Appointment</button>
+</div>
 
-                        </div>
-
-						<?php
-						$user_level = $this->session->userdata('user_level'); // Get user_level from session
-						?>
-
-<?php if ($user_level === "doctor"): ?>
-    <div class="mb-3">
-        <label for="notes" class="form-label">Doctor's Notes (Date)</label>
-        <input type="date" name="notes" id="notes" class="form-control" value="<?= isset($appointment['notes']) ? date('Y-m-d', strtotime($appointment['notes'])) : date('Y-m-d'); ?>" />
-    </div>
-<?php endif; ?>
-
-
-
-                        <div class="mb-3">
-                            <label for="status" class="form-label">Status</label>
-                            <select name="status" id="status" class="form-control" required>
-                                <option value="">Select Status</option>
-                                <option value="pending">Pending</option>
-                                <option value="booked">Booked</option>
-                                <!-- <option value="arrived">Arrived</option>
-                                <option value="reschedule">Reschedule</option>-->
-                                <!-- <option value="follow_up">Follow Up</option>  -->
-                                <option value="cancelled">Cancelled</option>
-                                <!-- <option value="in_session">In Session</option> -->
-                                <!-- <option value="completed">Completed</option> -->
-                            </select>
-                            <div class="invalid-feedback">
-                                Please select a status.
-                            </div>
-                        </div>
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary">Create Appointment</button>
-                        </div>
                         <?php echo form_close(); ?>
                     </div>
                 </div>
@@ -209,6 +216,5 @@
         // Trigger change event to populate initial time slots
         appointmentDateInput.dispatchEvent(new Event("change"));
     });
-</script>
-
+    </script>
 </div>

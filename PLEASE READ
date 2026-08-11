@@ -1,0 +1,43 @@
+this is the connection of ur gmail app password
+### Step 1 — Open this link
+
+[Google App Passwords](https://myaccount.google.com/apppasswords?utm_source=chatgpt.com)
+
+### Step 2 — Sign in
+
+Use the **Gmail account that your system will use to send emails**.
+
+### Step 3 — If you cannot access App Passwords
+
+Go to:
+
+[Google Account Security](https://myaccount.google.com/security?utm_source=chatgpt.com)
+
+Look for:
+
+**2-Step Verification** → Enable it first.
+
+Once 2-Step Verification is enabled, go back to:
+
+[Google App Passwords](https://myaccount.google.com/apppasswords?utm_source=chatgpt.com)
+
+### Step 4 — Create an App Password
+
+Under **App name**, enter:
+
+```text
+CodeIgniter 3
+```
+
+Then click **Create**.
+
+Google will generate a **16-character App Password**.
+
+**Important:** Keep this App Password secure. Do not share it with anyone.
+
+STEP 5 : 
+PORT = 465
+SECURITY = SSL
+SMTP SERVER = stmp.gmail.com
+password = yourapppassword
+https://www.gmass.co/smtp-test

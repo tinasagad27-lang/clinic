@@ -11,10 +11,29 @@ defined('BASEPATH') or exit('No direct script access allowed');
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-12 form-group mb-3">
-                        <label for="patient_name">Patient Name:</label>
-                        <p id="patient_name"><?= $vital_sign->patient_name; ?></p>
-                    </div>
+				<div class="col-md-12 form-group mb-3">
+    <label for="patient_name">Patient Name:</label>
+    <p id="patient_name" style="font-weight: bold;"><?= htmlspecialchars($vital_sign->patient_name); ?></p>
+</div>
+
+<!-- JavaScript to capitalize the first letter of each word -->
+<script>
+    // Get the patient name element
+    var patientNameElement = document.getElementById("patient_name");
+
+    // Capitalize each word in the patient name
+    if (patientNameElement) {
+        var name = patientNameElement.textContent
+            .toLowerCase()
+            .replace(/\b\w/g, function (char) {
+                return char.toUpperCase();
+            });
+
+        // Apply the formatted name
+        patientNameElement.textContent = name;
+    }
+</script>
+
                     <div class="col-md-6 form-group mb-3">
                         <label for="blood_pressure_systolic">Systolic BP:</label>
                         <p id="blood_pressure_systolic"><?= $vital_sign->blood_pressure_systolic; ?> mmHg</p>

@@ -67,123 +67,106 @@
 							</div>
 						</div>
 					</div>
-
-					<!-- Available Appointment Slots Form -->
 					<div class="col-md-6">
-						<div class="card shadow mb-4">
-							<div class="card-header">
-								<i class="fas fa-calendar-check me-1"></i>
-								Available Appointment Slots
-							</div>
-							<div class="card-body">
-								<form method="POST" action="">
-									<div class="row">
-										<div class="col-md-6">
-											<div class="mb-3">
-												<label for="appointment_date" class="form-label">Select Appointment Date</label>
-												<input type="date" name="appointment_date" id="appointment_date" class="form-control" required value="<?php echo date('Y-m-d'); ?>">
-											</div>
-										</div>
-										<div class="col-md-6">
-											<div class="mb-3">
-												<label class="form-label">&nbsp;</label>
-												<button type="submit" class="btn btn-primary w-100">Check Slots</button>
-											</div>
-										</div>
-									</div>
-								</form>
+    <!-- Doctor's Schedule Card -->
+<div class="card shadow mb-4">
+    <div class="card-header">
+        <i class="fas fa-user-md me-1"></i> Appointments Schedule
+    </div>
+    <div class="card-body">
+        <?php
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            $selectedDate = $_POST['appointment_date'];
+            $bookedTimes = [];
 
-								<?php
-								if ($_SERVER["REQUEST_METHOD"] == "POST") {
-									$selectedDate = $_POST['appointment_date'];
-									$totalSlots = 13;
-									$bookedSlots = 0;
-									$bookedTimes = [];
-									$allTimes = []; // Initialize the variable here
+            // Set timezone
+            date_default_timezone_set('Asia/Manila');
+            $currentTime = date('H:i');
 
-									// Get booked slots
-									foreach ($appointments as $appointment) {
-										if (date('Y-m-d', strtotime($appointment['appointment_date'])) == $selectedDate) {
-											$bookedSlots++;
-											$bookedTimes[] = date('H:i', strtotime($appointment['appointment_time']));
-										}
-									}
+            // Merge all booked appointments
+            $allAppointments = array_merge($appointments, $onlineappointments, $registrations);
 
-									foreach ($onlineappointments as $onlineappointment) {
-										if (date('Y-m-d', strtotime($onlineappointment['appointment_date'])) == $selectedDate) {
-											$bookedSlots++;
-											$bookedTimes[] = date('H:i', strtotime($onlineappointment['appointment_time']));
-										}
-									}
+            // Collect Walk-In Appointments
+            foreach ($appointments as $appointment) {
+                $appointmentDateTime = new DateTime($appointment['appointment_date'] . ' ' . $appointment['appointment_time'], new DateTimeZone('Asia/Manila'));
+                $status = $appointment['status'] ?? 'pending';
 
-									// Compute past slots for the current day
-									$expiredSlots = 0;
-									$currentTime = date('H:i'); // Current time
-									if ($selectedDate == date('Y-m-d')) {
-										for ($hour = 9; $hour <= 17; $hour++) {
-											for ($minute = 0; $minute < 60; $minute += 30) {
-												$timeString = sprintf('%02d:%02d', $hour, $minute);
-												if ($timeString >= '09:00' && $timeString <= '17:00' && $timeString < $currentTime) {
-													$expiredSlots++;
-												}
-											}
-										}
-									}
+                // Skip past appointments and hidden statuses
+                if ($appointmentDateTime->format('Y-m-d') == $selectedDate && !in_array($status, ['cancelled', 'completed', 'follow_up', 'reschedule'])) {
+                    $bookedTimes[] = $appointmentDateTime->format('H:i');
+                }
+            }
 
-									// Adjust available slots
-									$totalSlots = $totalSlots - $expiredSlots - $bookedSlots;
-									echo "<div class='mt-3'>Available Slots for <strong>" . date('F d, Y', strtotime($selectedDate)) . "</strong></div>";
+            foreach ($allAppointments as $appointment) {
+                if (is_object($appointment) && isset($appointment->appointment_date)) {
+                    if (date('Y-m-d', strtotime($appointment->appointment_date)) == $selectedDate) {
+                        $bookedTimes[] = date('H:i', strtotime($appointment->appointment_time));
+                    }
+                }
+            }
 
-									// Generate available times
-									for ($hour = 9; $hour <= 17; $hour++) {
-										for ($minute = 0; $minute < 60; $minute += 30) {
-											$timeString = sprintf('%02d:%02d', $hour, $minute);
+            // Define clinic hours (9:00 AM - 5:00 PM, skipping lunch break)
+            $clinicHours = [
+                '09:00', '09:30', '10:00', '10:30', '11:00',
+                '13:00', '13:30', '14:00', '14:30', '15:00',
+                '15:30', '16:00', '16:30'
+            ];
 
-											if ($timeString == '11:30' || $timeString == '17:30' || $timeString == '17:00' || $timeString == '12:00') {
-												continue; // Skip unavailable times
-											}
+            // Remove past slots for today's availability
+            if ($selectedDate == date('Y-m-d')) {
+                $clinicHours = array_filter($clinicHours, function ($time) use ($currentTime) {
+                    return $time >= $currentTime;
+                });
+            }
 
-											// Skip past times on the current day
-											if ($selectedDate == date('Y-m-d') && $timeString < $currentTime) {
-												continue;
-											}
+            echo "<div class='mb-3'><strong>Schedule for " . date('F d, Y', strtotime($selectedDate)) . "</strong></div>";
+            echo "<div class='row'>";
+            
+            foreach ($clinicHours as $time) {
+                $status = in_array($time, $bookedTimes) ? "Not Available" : "Available";
+                $colorClass = in_array($time, $bookedTimes) ? "bg-danger text-white" : "bg-success text-white";
 
-											// Skip booked times
-											if (!in_array($timeString, $bookedTimes)) {
-												$allTimes[] = date('h:i A', strtotime($timeString));
-											}
-										}
-									}
+                echo "<div class='col-md-4 mb-2'>";
+                echo "<div class='card $colorClass text-center p-2'>";
+                echo "<strong>" . date('h:i A', strtotime($time)) . "</strong>";
+                echo "<div>$status</div>";
+                echo "</div>";
+                echo "</div>";
+            }
 
-									// Display available times
-									if (!empty($allTimes)) {
-										echo "<div>Available Times:</div><ul>";
-										foreach ($allTimes as $time) {
-											echo "<li>$time</li>";
-										}
-										echo "</ul>";
-									} else {
-										echo "<div>No available times for this date.</div>";
-									}
-
-									// Display total available slots
-									$totalAvailableSlots = count($allTimes);
-
-									if ($totalAvailableSlots > 0) {
-										echo "<div>Total Available Slots: $totalAvailableSlots</div>";
-									} else {
-										echo "<div>No available times for this date.</div>";
-									}
-								}
-								?>
+            echo "</div>";
+        }
+        ?>
+    </div>
+</div>
 
 
+    <!-- Available Appointment Slots Form -->
+    <div class="card shadow mb-4">
+        <div class="card-header">
+            <i class="fas fa-calendar-check me-1"></i> Available Appointment Slots
+        </div>
+        <div class="card-body">
+            <form method="POST" action="">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="appointment_date" class="form-label">Select Appointment Date</label>
+                            <input type="date" name="appointment_date" id="appointment_date" class="form-control" required value="<?php echo date('Y-m-d'); ?>">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">Check Slots</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
 
 
 			<table class="table table-striped table-bordered table-hover" id="datatablesSimple">
@@ -301,9 +284,9 @@
 						foreach ($allAppointments as $appointment):
 							$appointmentTime = new DateTime($appointment['date'] . ' ' . $appointment['time'], new DateTimeZone('Asia/Manila'));
 
-							// Check if current time is past 5 PM
-							if ($currentDateTime >= $cutoffTime) {
-								continue; // Hide all entries after 5 PM
+							// Check if the appointment date is in the past
+							if ($appointmentTime < $currentDateTime) {
+								continue; // Hide past appointments
 							}
 
 							// Check if user is doctor or secretary and hide specific statuses
@@ -476,10 +459,10 @@ if ($user_level === 'secretary' && in_array($appointment['status'], ['completed'
 						foreach ($allAppointments as $appointment):
 							$appointmentTime = new DateTime($appointment['date'] . ' ' . $appointment['time'], new DateTimeZone('Asia/Manila'));
 
-							// Check if current time is past 5 PM
-							if ($currentDateTime >= $cutoffTime) {
-								continue; // Hide all entries after 5 PM
-							}
+							// // Check if current time is past 5 PM
+							// if ($currentDateTime >= $cutoffTime) {
+							// 	continue; // Hide all entries after 5 PM
+							// }
 
 							// Apply role-specific filtering
 							if ($user_level === 'doctor' && in_array($appointment['status'], ['completed', 'cancelled', 'pending'])) {
@@ -546,7 +529,7 @@ if ($user_level === 'secretary' && in_array($appointment['status'], ['completed'
 				if (data) {
 					const currentMonth = data.current_month || "Unknown"; // Default to "Unknown" if no current month is available
 					const appointmentsCount = data.appointments_count || 0; // Default to 0 if no data
-					const onlineAppointmentsCount = data.onlineappointments_count || 0; // Default to 0 if no data
+					// const onlineAppointmentsCount = data.onlineappointments_count || 0; // Default to 0 if no data
 					const registrationCount = data.registration_count || 0; // Default to 0 if no data
 
 					// Create the chart
@@ -564,7 +547,7 @@ if ($user_level === 'secretary' && in_array($appointment['status'], ['completed'
 							},
 							{
 								label: 'Online Appointments',
-								data: [onlineAppointmentsCount],
+								data: [registrationCount],
 								backgroundColor: 'rgba(255, 99, 132, 0.2)', // Light red fill
 								borderColor: 'rgba(255, 99, 132, 1)', // Red line
 								borderWidth: 2,

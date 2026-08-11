@@ -55,6 +55,15 @@
                                 </div>
                             </div>
                         </div>
+						<div class="row">
+                            <div class="col-md-12">
+                                <div class="patient-record-info">
+                                    <h2>Assigned Doctor</h2>
+                                    <hr>
+                                    <p><strong>Doctor's Name:</strong> <?= $registration->doctor ?></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="text-center mt-4">

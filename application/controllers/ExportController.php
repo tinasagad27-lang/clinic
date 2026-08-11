@@ -435,7 +435,7 @@ public function report_view()
     $end_of_month = date('Y-m-t', strtotime($end_date));      // Last day of the month
 
     // Daily report
-    $data['dailyRegistrations'] = $this->Registration_model->get_registrations_by_date($start_date, $end_date);
+    $data['dailyRegistrations'] = $this->Registration_model->get_registrations_with_service_type($start_date, $end_date);
     $data['dailyOnlineAppointments'] = $this->OnlineAppointments_model->get_appointments_by_date($start_date, $end_date);
     $data['dailyWalkInAppointments'] = $this->Appointment_model->get_appointments_by_date($start_date, $end_date);
     $data['dailyCheckups'] = $this->Checkup_model->get_checkups_by_date($start_date, $end_date);
@@ -443,7 +443,7 @@ public function report_view()
     $data['dailyLabTests'] = $this->LaboratoryTest_model->get_tests_by_date($start_date, $end_date); // ✅ Fixed the model name
 
     // Weekly report
-    $data['weeklyRegistrations'] = $this->Registration_model->get_registrations_by_date($start_of_week, $end_of_week);
+    $data['weeklyRegistrations'] = $this->Registration_model->get_registrations_with_service_type($start_of_week, $end_of_week);
     $data['weeklyOnlineAppointments'] = $this->OnlineAppointments_model->get_appointments_by_date($start_of_week, $end_of_week);
     $data['weeklyWalkInAppointments'] = $this->Appointment_model->get_appointments_by_date($start_of_week, $end_of_week);
     $data['weeklyCheckups'] = $this->Checkup_model->get_checkups_by_date($start_of_week, $end_of_week);
@@ -451,7 +451,7 @@ public function report_view()
     $data['weeklyLabTests'] = $this->LaboratoryTest_model->get_tests_by_date($start_of_week, $end_of_week); // ✅ Fixed the model name
 
     // Monthly report
-    $data['monthlyRegistrations'] = $this->Registration_model->get_registrations_by_date($start_of_month, $end_of_month);
+    $data['monthlyRegistrations'] = $this->Registration_model->get_registrations_with_service_type($start_of_month, $end_of_month);
     $data['monthlyOnlineAppointments'] = $this->OnlineAppointments_model->get_appointments_by_date($start_of_month, $end_of_month);
     $data['monthlyWalkInAppointments'] = $this->Appointment_model->get_appointments_by_date($start_of_month, $end_of_month);
     $data['monthlyCheckups'] = $this->Checkup_model->get_checkups_by_date($start_of_month, $end_of_month);

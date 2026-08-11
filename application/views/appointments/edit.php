@@ -29,10 +29,10 @@
 				<div class="invalid-feedback">Please select a time.</div>
 			</div>
 
-			<div class="form-group mb-3">
+			<!-- <div class="form-group mb-3">
 				<label for="doctor">Doctor</label>
 				<input type="text" name="doctor" id="doctor" class="form-control" value="<?php echo htmlspecialchars($appointment['doctor']); ?>" readonly aria-label="Doctor Name">
-			</div>
+			</div> -->
 
 			<?php $user_level = $this->session->userdata('user_level'); ?>
 

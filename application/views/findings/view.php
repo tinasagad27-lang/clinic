@@ -197,8 +197,69 @@
                 <p>No Diagnosis recorded yet.</p>
             <?php endif; ?>
             
-            <button onclick="window.print()" class="btn btn-primary no-print">Print Report</button>
+            <!-- Print Button -->
+<button onclick="window.print()" class="btn btn-primary no-print" style="margin-bottom: 20px;">Print Report</button>
 
+<!-- Signature Section -->
+<div class="signature-section" style="text-align: left; position: relative; margin-top: 40px; display: none;">
+<div style="position: relative; display: inline-block; width: 200px;">
+    <!-- Signature Image (Overlayed over the name) -->
+    <img src="<?php echo base_url('assets/images/signature.png'); ?>"
+        alt="Signature"
+        style="position: absolute; top: 10px; left: 0; width: 300px; height: auto; opacity: 0.8;">
+</div>
+<!-- Printed Name and Line -->
+<p style="margin-top: 100px;">____________________________</p>
+<p><strong>Dr.</strong> Dra. Chona Mendoza</p>
+<p><strong>Signature</strong></p>
+
+</div>
+
+<!-- CSS to control visibility -->
+<style>
+    /* Hide signature by default */
+    .signature-section {
+        display: none;
+    }
+
+    /* Show signature when printing */
+    @media print {
+        .signature-section {
+            display: block !important;
+        }
+    }
+</style>
+
+
+
+
+<!-- Print Styling (For Hiding Elements) -->
+<style>
+    @media print {
+        /* Hide print button during printing */
+        .no-print {
+            display: none;
+        }
+
+        /* Ensure the report content fills the page */
+        #reportSection {
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Ensure tables are properly formatted for printing */
+        table {
+            border: 1px solid #000;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            border: 1px solid #000;
+        }
+    }
+</style>
         </div>
     </div>
 

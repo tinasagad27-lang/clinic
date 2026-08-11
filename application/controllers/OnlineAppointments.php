@@ -19,7 +19,7 @@ class OnlineAppointments extends CI_Controller
 	{
 		$this->load->view('onlineappointments/create');
 	}
-	
+
 	public function onlinestore()
 	{
 		// Load necessary libraries and models
@@ -28,7 +28,9 @@ class OnlineAppointments extends CI_Controller
 		$this->load->model('Registration_model');
 
 		// Set validation rules for the form fields
-		$this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+		$this->form_validation->set_rules('email', 'Email', 'required|is_unique[registration.email]', [
+			'is_unique' => 'This email is already registered. Please select "Existing Member" to proceed with the booking..'
+		]);
 		$this->form_validation->set_rules('name', 'First Name', 'required');
 		$this->form_validation->set_rules('mname', 'Middle Name', 'required');
 		$this->form_validation->set_rules('lname', 'Last Name', 'required');
@@ -94,31 +96,48 @@ class OnlineAppointments extends CI_Controller
 		$age = $birthday->diff(new DateTime())->y;
 		$data['age'] = $age;
 
-		if ($this->Registration_model->insert_appointment($data)) {
-			// Update session for 5-minute booking limitation
-			$this->session->set_userdata([
-				'last_booking' => $current_time,
-				'last_email' => $email
-			]);
+		// Insert into database
+		$registration_id = $this->Registration_model->insert_registration($data);
 
-			// Send email confirmation
-			$this->load->library('email');
-			$this->email->from('myeclass2021@gmail.com', 'Mendoza Clinic');
-			$this->email->to($email);
-			$this->email->subject('Appointment Booking Confirmation');
-			$this->email->message('We received your appointment request. Please wait for our email confirmation within 3-4 business days.');
-
-			if ($this->email->send()) {
-				$this->session->set_flashdata('success', 'Your appointment has been successfully booked! An email confirmation has been sent to you.');
-			} else {
-				$this->session->set_flashdata('error', 'There was an issue sending the email confirmation. Please contact us for assistance.');
-			}
-		} else {
+		// Check if insertion was successful
+		if (!$registration_id) {
 			$this->session->set_flashdata('error', 'There was an issue booking your appointment. Please try again.');
+			redirect('clinic/index');
 		}
 
-		redirect('clinic/index');
+		// Debug: Ensure registration_id is being saved
+		log_message('debug', 'Registration ID: ' . $registration_id);
+
+		// Update session for 5-minute booking limitation
+		$this->session->set_userdata([
+			'last_booking' => $current_time,
+			'last_email' => $email
+		]);
+
+		// Send email confirmation using PHP mail() function
+		$this->load->helper('email_helper');
+
+		$email_subject = 'Appointment Booking Confirmation';
+		$email_message = '<html><body>';
+		$email_message .= '<h2>Appointment Booking Confirmation</h2>';
+		$email_message .= '<p>We received your appointment request.</p>';
+		$email_message .= '<p>Please wait for our email confirmation within 3-4 business days.</p>';
+		$email_message .= '<p>Thank you!</p>';
+		$email_message .= '</body></html>';
+
+		if (send_email_simple($email, $email_subject, $email_message)) {
+			$this->session->set_flashdata('success', 'Your appointment has been successfully booked! An email confirmation has been sent to you.');
+			log_message('info', "Confirmation email sent to {$email}");
+		} else {
+			$this->session->set_flashdata('error', 'There was an issue sending the email confirmation. Please contact us for assistance.');
+			log_message('error', "Email failed for {$email}");
+		}
+
+		// After successful registration
+		$registration_id = $this->db->insert_id(); // Get the last inserted registration ID
+		redirect('medication/online_medication/' . $registration_id);
 	}
+
 	public function store()
 	{
 		// Define lunch break slots
@@ -201,8 +220,8 @@ class OnlineAppointments extends CI_Controller
 		}
 	}
 
-	
-	
+
+
 	public function online_edit($id)
 	{
 		$this->load->model('Registration_model');
@@ -217,114 +236,74 @@ class OnlineAppointments extends CI_Controller
 		$this->load->view('onlineappointments/edit', $data);
 	}
 
-	public function online_update($id) {
+	public function online_update($id)
+	{
 		$this->load->model('Registration_model');
 		$this->load->library('email');
-	
+
+		// Load existing data
+		$existingData = $this->Registration_model->get_registration_by_id($id);
+		if (!$existingData) {
+			$this->session->set_flashdata('error', 'Registration not found.');
+			redirect('dashboard/admin/index');
+			return;
+		}
+
 		// Collect form data
 		$data = [
-			'email' => $this->input->post('email'),
-			'name' => $this->input->post('name'),
-			'mname' => $this->input->post('mname'),
-			'lname' => $this->input->post('lname'),
-			'philhealth_id' => $this->input->post('philhealth_id'),
-			'birthday' => $this->input->post('birthday'),
-			'age' => $this->input->post('age'),
-			'address' => $this->input->post('address'),
-			'patient_contact_no' => $this->input->post('patient_contact_no'),
-			'marital_status' => $this->input->post('marital_status'),
-			'husband' => $this->input->post('husband'),
-			'husband_phone' => $this->input->post('husband_phone'),
-			'occupation' => $this->input->post('occupation'),
-			'appointment_date' => $this->input->post('appointment_date'),
-			'appointment_status' => $this->input->post('appointment_status'), // Make sure this is set
-			'appointment_time' => $this->input->post('appointment_time'),
-			'next_checkup_date'=> $this->input->post('next_checkup_date')
+			'email' => $this->input->post('email') ?: $existingData['email'],
+			'name' => $this->input->post('name') ?: $existingData['name'],
+			'mname' => $this->input->post('mname') ?: $existingData['mname'],
+			'lname' => $this->input->post('lname') ?: $existingData['lname'],
+			'philhealth_id' => $this->input->post('philhealth_id') ?: $existingData['philhealth_id'],
+			'birthday' => $this->input->post('birthday') ?: $existingData['birthday'],
+			'age' => $this->input->post('age') ?: $existingData['age'],
+			'address' => $this->input->post('address') ?: $existingData['address'],
+			'patient_contact_no' => $this->input->post('patient_contact_no') ?: $existingData['patient_contact_no'],
+			'marital_status' => $this->input->post('marital_status') ?: $existingData['marital_status'],
+			'husband' => $this->input->post('husband') ?: $existingData['husband'],
+			'husband_phone' => $this->input->post('husband_phone') ?: $existingData['husband_phone'],
+			'occupation' => $this->input->post('occupation') ?: $existingData['occupation'],
+			'appointment_date' => $this->input->post('appointment_date') ?: $existingData['appointment_date'],
+			'appointment_status' => $this->input->post('appointment_status'),
+			'appointment_time' => $this->input->post('appointment_time') ?: $existingData['appointment_time'],
+			'doctor' => $this->input->post('doctor') ?: $existingData['doctor'],
+			'next_checkup_date' => $this->input->post('next_checkup_date') ?: $existingData['next_checkup_date']
 		];
-	
+
 		// Call the model's update method
 		$updateStatus = $this->Registration_model->onlineupdate($id, $data);
-	
-		// Set a flash message and redirect
+
 		if ($updateStatus) {
 			$this->session->set_flashdata('success', 'Registration updated successfully.');
-	
-			// Send confirmation or cancellation email based on status
-			if ($data['appointment_status'] === 'booked') {
-				$this->send_email_confirmation(
-					$data['email'],
-					$data['name'],
-					$data['lname'],
-					$data['appointment_status'],
-					$data['appointment_date'],
-					$data['appointment_time']
-				);
-			} elseif ($data['appointment_status'] === 'cancelled') {
-				$this->send_email_confirmation(
-					$data['email'],
-					$data['name'],
-					$data['lname'],
-					$data['appointment_status'],
-					$data['appointment_date'],
-					$data['appointment_time']
-				);
-			}	elseif ($data['appointment_status'] === 'reschedule') {
-				$this->send_email_confirmation(
-					$data['email'],
-					$data['name'],
-					$data['lname'],
-					$data['appointment_status'],
-					$data['appointment_date'],
-					$data['appointment_time']
-				);
-			} elseif ($data['appointment_status'] === 'reminder_sent') {
-				$this->send_email_confirmation(
-					$data['email'],
-					$data['name'],
-					$data['lname'],
-					$data['appointment_status'],
-					$data['appointment_date'],
-					$data['appointment_time']
-				);
-			} elseif ($data['appointment_status'] === 'follow_up') {
-				$this->send_email_confirmation(
-					$data['email'],
-					$data['name'],
-					$data['lname'],
-					$data['appointment_status'],
-					$data['appointment_date'],
-					$data['appointment_time']
-				);
-			}
+
+			// Send email notification based on status
+			$this->send_email_confirmation(
+				$data['email'],
+				$data['name'],
+				$data['lname'],
+				$data['appointment_status'],
+				$data['appointment_date'],
+				$data['appointment_time']
+			);
 		} else {
 			$this->session->set_flashdata('error', 'Failed to update the registration.');
 		}
-	
+
 		redirect('dashboard/admin/index');
 	}
-	
-	// Send Email
-	private function send_email_confirmation($recipient_email, $name, $lname, $status, $appointment_date = null, $appointment_time = null) {
-		$config = [
-			'protocol'    => 'smtp',
-			'smtp_host'   => 'smtp.gmail.com',
-			'smtp_user'   => 'myeclass2021@gmail.com',
-			'smtp_pass'   => 'nlqnjtrhbazoqlgx', // Replace with your App Password
-			'smtp_port'   => 465,
-			'smtp_crypto' => 'ssl',
-			'mailtype'    => 'html',
-			'charset'     => 'utf-8',
-			'wordwrap'    => TRUE,
-			'newline'     => "\r\n"
-		];
-	
-		$this->load->library('email', $config);
-	
-		$this->email->from('myeclass2021@gmail.com', 'Mendoza Clinic');
-		$this->email->to($recipient_email);
-	
+
+
+	// Send Email using PHP mail() function
+	private function send_email_confirmation($recipient_email, $name, $lname, $status, $appointment_date = null, $appointment_time = null)
+	{
+		$this->load->helper('email_helper');
+
+		$subject = '';
+		$message = '';
+
 		if ($status === 'booked') {
-			$this->email->subject('Appointment Confirmation');
+			$subject = 'Appointment Confirmation';
 			$message = "
 			<html>
 			<head>
@@ -346,7 +325,7 @@ class OnlineAppointments extends CI_Controller
 			</body>
 			</html>";
 		} elseif ($status === 'cancelled') {
-			$this->email->subject('Appointment Cancellation');
+			$subject = 'Appointment Cancellation';
 			$message = "
 			<html>
 			<head>
@@ -368,7 +347,7 @@ class OnlineAppointments extends CI_Controller
 			</body>
 			</html>";
 		} elseif ($status === 'reminder_sent') {
-			$this->email->subject('Appointment Reminder');
+			$subject = 'Appointment Reminder';
 			$message = "
 			<html>
 			<head>
@@ -389,8 +368,8 @@ class OnlineAppointments extends CI_Controller
 				<p>The Mendoza Clinic Team</p>
 			</body>
 			</html>";
-		}	elseif ($status === 'reschedule') {
-			$this->email->subject('Appointment Rescheduled');
+		} elseif ($status === 'reschedule') {
+			$subject = 'Appointment Rescheduled';
 			$message = "
 			<html>
 			<head>
@@ -411,10 +390,8 @@ class OnlineAppointments extends CI_Controller
 				<p>The Mendoza Clinic Team</p>
 			</body>
 			</html>";
-		}
-		
-		elseif ($status === 'follow_up') {
-			$this->email->subject('Follow-Up Appointment Scheduled');
+		} elseif ($status === 'follow_up') {
+			$subject = 'Follow-Up Appointment Scheduled';
 			$message = "
 			<html>
 			<head>
@@ -436,18 +413,16 @@ class OnlineAppointments extends CI_Controller
 			</body>
 			</html>";
 		}
-		
-	
-		$this->email->message($message);
-	
-		if ($this->email->send()) {
+
+		if (send_email_simple($recipient_email, $subject, $message)) {
 			$this->session->set_flashdata('success', ucfirst($status) . ' email sent successfully.');
 		} else {
-			$this->session->set_flashdata('error', 'Failed to send ' . $status . ' email. Error: ' . $this->email->print_debugger());
+			$this->session->set_flashdata('error', 'Failed to send ' . $status . ' email.');
+			log_message('error', "Online appointment email failed to {$recipient_email} for status: {$status}");
 		}
 	}
-	
-	
+
+
 
 
 	public function edit($id)
@@ -472,6 +447,19 @@ class OnlineAppointments extends CI_Controller
 		$data = array('appointment_status' => 'booked');
 		$this->OnlineAppointments_model->update_appointment($id, $data);
 		$this->session->set_flashdata('success', 'Appointment approved successfully.');
+		// Send confirmation email to the registrant
+		$registration = $this->Registration_model->get_registration_by_id($id);
+		if (!empty($registration)) {
+			$this->send_email_confirmation(
+				$registration['email'],
+				$registration['name'],
+				$registration['lname'],
+				'booked',
+				$registration['appointment_date'] ?? null,
+				$registration['appointment_time'] ?? null
+			);
+		}
+
 		redirect('onlineappointments');
 	}
 
@@ -480,6 +468,19 @@ class OnlineAppointments extends CI_Controller
 		$data = array('appointment_status' => 'cancelled');
 		$this->OnlineAppointments_model->update_appointment($id, $data);
 		$this->session->set_flashdata('success', 'Appointment rejected successfully.');
+		// Send cancellation email to the registrant
+		$registration = $this->Registration_model->get_registration_by_id($id);
+		if (!empty($registration)) {
+			$this->send_email_confirmation(
+				$registration['email'],
+				$registration['name'],
+				$registration['lname'],
+				'cancelled',
+				$registration['appointment_date'] ?? null,
+				$registration['appointment_time'] ?? null
+			);
+		}
+
 		redirect('onlineappointments');
 	}
 
@@ -544,6 +545,19 @@ class OnlineAppointments extends CI_Controller
 		} else {
 			if ($this->Registration_model->update_appointment($id, $data)) {
 				$this->session->set_flashdata('success', 'Your appointment has been successfully updated!');
+				// If the appointment status changed, send an email notification
+				$newStatus = isset($data['appointment_status']) ? $data['appointment_status'] : null;
+				$oldStatus = isset($existingAppointment['appointment_status']) ? $existingAppointment['appointment_status'] : null;
+				if (!empty($newStatus) && $newStatus !== $oldStatus) {
+					$this->send_email_confirmation(
+						$data['email'],
+						$data['name'],
+						$data['lname'],
+						$newStatus,
+						$data['appointment_date'] ?? null,
+						$data['appointment_time'] ?? null
+					);
+				}
 			} else {
 				$this->session->set_flashdata('error', 'There was an issue updating your appointment. Please try again.');
 			}

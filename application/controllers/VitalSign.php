@@ -145,42 +145,51 @@ public function add($registration_id)
     // }
 
     public function store()
-    {
-        $this->form_validation->set_rules('blood_pressure_systolic', 'Systolic BP', 'required|numeric');
-        $this->form_validation->set_rules('blood_pressure_diastolic', 'Diastolic BP', 'required|numeric');
-        $this->form_validation->set_rules('pulse_rate', 'Pulse Rate', 'required|numeric');
-        $this->form_validation->set_rules('respiration_rate', 'Respiration Rate', 'required|numeric');
-        $this->form_validation->set_rules('temperature', 'Temperature', 'required|numeric');
-        $this->form_validation->set_rules('oxygen_saturation', 'Oxygen Saturation', 'required|numeric');
-        $this->form_validation->set_rules('height', 'Height', 'required|numeric');
-        $this->form_validation->set_rules('weight', 'Weight', 'required|numeric');
-        $this->form_validation->set_rules('bmi', 'BMI', 'required|numeric');
-        $this->form_validation->set_rules('created_at', 'Date Recorded', 'required');
-    
-        if ($this->form_validation->run() == FALSE) {
-            $this->load->view('vital_sign/create');
-        } else {
-            $data = array(
-                'registration_id' => $this->input->post('registration_id'),
-                'blood_pressure_systolic' => $this->input->post('blood_pressure_systolic'),
-                'blood_pressure_diastolic' => $this->input->post('blood_pressure_diastolic'),
-                'pulse_rate' => $this->input->post('pulse_rate'),
-                'respiration_rate' => $this->input->post('respiration_rate'),
-                'temperature' => $this->input->post('temperature'),
-                'oxygen_saturation' => $this->input->post('oxygen_saturation'),
-                'height' => $this->input->post('height'),
-                'weight' => $this->input->post('weight'),
-                'bmi' => $this->input->post('bmi'),
-                'created_at' => $this->input->post('created_at')
-            );
-    
-            // Save vital sign data
-            $this->vital_sign_model->insert_vital_sign($data);
-            
-            // Redirect to the medication page and pass the registration ID
+{
+    $this->form_validation->set_rules('blood_pressure_systolic', 'Systolic BP', 'required|numeric');
+    $this->form_validation->set_rules('blood_pressure_diastolic', 'Diastolic BP', 'required|numeric');
+    $this->form_validation->set_rules('pulse_rate', 'Pulse Rate', 'required|numeric');
+    $this->form_validation->set_rules('respiration_rate', 'Respiration Rate', 'required|numeric');
+    $this->form_validation->set_rules('temperature', 'Temperature', 'required|numeric');
+    $this->form_validation->set_rules('oxygen_saturation', 'Oxygen Saturation', 'required|numeric');
+    $this->form_validation->set_rules('height', 'Height', 'required|numeric');
+    $this->form_validation->set_rules('weight', 'Weight', 'required|numeric');
+    $this->form_validation->set_rules('bmi', 'BMI', 'required|numeric');
+    $this->form_validation->set_rules('created_at', 'Date Recorded', 'required');
+
+    if ($this->form_validation->run() == FALSE) {
+        $this->load->view('vital_sign/create');
+    } else {
+        $data = array(
+            'registration_id' => $this->input->post('registration_id'),
+            'blood_pressure_systolic' => $this->input->post('blood_pressure_systolic'),
+            'blood_pressure_diastolic' => $this->input->post('blood_pressure_diastolic'),
+            'pulse_rate' => $this->input->post('pulse_rate'),
+            'respiration_rate' => $this->input->post('respiration_rate'),
+            'temperature' => $this->input->post('temperature'),
+            'oxygen_saturation' => $this->input->post('oxygen_saturation'),
+            'height' => $this->input->post('height'),
+            'weight' => $this->input->post('weight'),
+            'bmi' => $this->input->post('bmi'),
+            'created_at' => $this->input->post('created_at')
+        );
+
+        // Save vital sign data
+        $this->vital_sign_model->insert_vital_sign($data);
+
+        // Check which button was clicked
+        $submit_action = $this->input->post('submit_action');
+        
+        if ($submit_action == 'next') {
+            // Redirect to the medication page
             redirect('medication/add/' . $data['registration_id']);
+        } else if ($submit_action == 'save_only') {
+            // Redirect to a confirmation or the same form for review
+            redirect('VitalSign/index/' . $data['registration_id']);
         }
     }
+}
+
     
 
     // Display the form to update a vital sign record

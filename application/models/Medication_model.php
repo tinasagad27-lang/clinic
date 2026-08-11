@@ -10,6 +10,19 @@ class Medication_model extends CI_Model
     {
         return $this->db->insert('email_account', $data);
     }
+    public function get_patient_by_id_medication($registration_id)
+{
+    $this->db->where('id', $registration_id);
+    $query = $this->db->get('registration');
+    return $query->row_array(); // Returns patient details
+}
+
+public function get_medical_by_registration_id($registration_id)
+{
+    $this->db->where('registration_id', $registration_id);
+    $query = $this->db->get('medical');
+    return $query->row_array(); // Returns the row if found, NULL if not
+}
 
     public function get_email_by_appointment_id($appointment_id)
     {

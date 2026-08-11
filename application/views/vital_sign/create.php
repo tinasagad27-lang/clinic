@@ -72,8 +72,12 @@
                         </div>
                     </div>
 
-                    <!-- Form Submit Button -->
-                    <button type="submit" class="btn btn-primary mt-3">Next</button>
+                   <!-- Form Submit Buttons -->
+<div class="mt-3">
+    <button type="submit" class="btn btn-primary" name="submit_action" value="next">Next</button>
+    <button type="submit" class="btn btn-secondary" name="submit_action" value="save_only">Save Only</button>
+</div>
+
                     
                 </form>
             </div>

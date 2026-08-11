@@ -67,7 +67,7 @@
                 <h1>Update Patient Information</h1>
                 <hr>
                 <?php echo form_open('registration/update'); ?>
-				<input type="hidden" name="id" value="<?= $registration->id ?>">
+                <input type="hidden" name="id" value="<?= $registration->id ?>">
 
 
                 <?php if (validation_errors()): ?>
@@ -115,19 +115,19 @@
                             <label for="philhealth_id">PhilHealth ID (if any):</label>
                             <input type="number" class="form-control" id="philhealth_id" name="philhealth_id" value="<?= $registration->philhealth_id ?>">
                         </div>
-						<div class="grid-item form-group">
-                            <label for="age">Email:</label>
-                            <input type="email" class="form-control" id="email" name="email" value="<?= $registration->email ?>" >
+                        <div class="grid-item form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" class="form-control" id="email" name="email" value="<?= $registration->email ?>">
                         </div>
                     </div>
-					<!-- <div class="grid-item form-group">
+                    <!-- <div class="grid-item form-group">
     <label for="doctor">Doctor's Name:</label>
-    <input type="text" class="form-control" id="doctor" name="doctor" value="<?= $registration->doctor?>">
+    <input type="text" class="form-control" id="doctor" name="doctor" value="<?= $registration->doctor ?>">
 </div> -->
 
                 </div>
 
-                
+
 
                 <!-- Guardian Information Section -->
                 <div class="form-section">
@@ -145,6 +145,16 @@
                         <div class="grid-item form-group">
                             <label for="occupation">Relation to the Patient:</label>
                             <input type="text" class="form-control" id="occupation" name="occupation" value="<?= $registration->occupation ?>">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-section">
+                    <h5>Doctor's Name</h5>
+                    <hr>
+                    <div class="grid-container">
+                        <div class="grid-item form-group">
+                            <label for="doctor">Doctor's Name:</label>
+                            <input type="text" class="form-control" id="doctor" name="doctor" value="<?= $registration->doctor ?>">
                         </div>
                     </div>
                 </div>

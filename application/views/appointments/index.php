@@ -29,7 +29,7 @@
                                 <th>Patient</th>
                                 <th>Date</th>
                                 <th>Time</th>
-                                <th>Doctor</th>
+                                <!-- <th>Doctor</th> -->
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -59,7 +59,7 @@
                                         </td>
 
 
-                                        <td><?php echo $appointment['doctor']; ?></td>
+                                        <!-- <td><?php echo $appointment['doctor']; ?></td> -->
                                         <td><?php echo ucfirst($appointment['status']); ?></td>
                                         <td>
                                             <a href="<?php echo site_url('Appointments/view/' . $appointment['id']); ?>" class="btn btn-outline-primary btn-sm me-1">

@@ -12,12 +12,12 @@ class Registration extends CI_Controller
         $this->load->model('Appointment_model');
         $this->load->model('User_model');
     }
-    
+
     public function index()
     {
         redirect('registration/patients');
     }
-    
+
     public function patients()
     {
         $this->load->view('r_assets/navbar');
@@ -28,11 +28,11 @@ class Registration extends CI_Controller
     }
 
     public function generate_patient_id()
-{
-    $total_registrations = $this->get_total_registrations();
-    $new_id_number = $total_registrations + 1;
-    return str_pad($new_id_number, 4, '0', STR_PAD_LEFT); // Format: 0001
-}
+    {
+        $total_registrations = $this->get_total_registrations();
+        $new_id_number = $total_registrations + 1;
+        return str_pad($new_id_number, 4, '0', STR_PAD_LEFT); // Format: 0001
+    }
 
 
     public function create()
@@ -82,44 +82,47 @@ class Registration extends CI_Controller
 
     //pagination
     public function submit()
-{
-    $this->form_validation->set_rules('birthday', 'Birthday', 'required');
-    $this->form_validation->set_rules('address', 'Address', 'required');
-    $this->form_validation->set_rules('name', 'Name', 'required');
-    $this->form_validation->set_rules('lname', 'Last Name', 'required');
+    {
+        $this->form_validation->set_rules('birthday', 'Birthday', 'required');
+        $this->form_validation->set_rules('address', 'Address', 'required');
+        $this->form_validation->set_rules('name', 'Name', 'required');
+        $this->form_validation->set_rules('email', 'Email', 'required|is_unique[registration.email]', [
+            'is_unique' => 'This email is already registered. Please use a different email.'
+        ]);
+        $this->form_validation->set_rules('lname', 'Last Name', 'required');
 
-    if ($this->form_validation->run() == FALSE) {
-        $this->load->view('dashboard/registration');
-    } else {
-        // Generate a new patient ID if one is not provided
-        $patient_id = $this->input->post('id') ?: $this->generate_patient_id();
+        if ($this->form_validation->run() == FALSE) {
+            $this->load->view('dashboard/registration');
+        } else {
+            // Generate a new patient ID if one is not provided
+            $patient_id = $this->input->post('id') ?: $this->generate_patient_id();
 
-        $data = array(
-            'id' => $patient_id,
-            'name' => $this->input->post('name'),
-            'mname' => $this->input->post('mname'),
-            'lname' => $this->input->post('lname'),
-            'marital_status' => $this->input->post('marital_status'),
-            'husband_phone' => $this->input->post('husband_phone'),
-            'patient_contact_no' => $this->input->post('patient_contact_no'),
-            'philhealth_id' => $this->input->post('philhealth_id'),
-            'birthday' => $this->input->post('birthday'),
-            'address' => $this->input->post('address'),
-            'age' => $this->input->post('age'),
-			'email' => $this->input->post('email'),
-            'husband' => $this->input->post('husband'),
-            'occupation' => $this->input->post('occupation'),
-            'last_update' => date('Y-m-d H:i:s'),
-            'created_at' => date('Y-m-d H:i:s'),
-			'doctor' => $this->input->post('doctor')
-        );
+            $data = array(
+                'id' => $patient_id,
+                'name' => $this->input->post('name'),
+                'mname' => $this->input->post('mname'),
+                'lname' => $this->input->post('lname'),
+                'marital_status' => $this->input->post('marital_status'),
+                'husband_phone' => $this->input->post('husband_phone'),
+                'patient_contact_no' => $this->input->post('patient_contact_no'),
+                'philhealth_id' => $this->input->post('philhealth_id'),
+                'birthday' => $this->input->post('birthday'),
+                'address' => $this->input->post('address'),
+                'age' => $this->input->post('age'),
+                'email' => $this->input->post('email'),
+                'husband' => $this->input->post('husband'),
+                'occupation' => $this->input->post('occupation'),
+                'last_update' => date('Y-m-d H:i:s'),
+                'created_at' => date('Y-m-d H:i:s'),
+                'doctor' => $this->input->post('doctor')
+            );
 
-        $this->Registration_model->insert_registration($data);
-        
-        // Redirect to the create page in VitalSign controller with registration_id
-        redirect('VitalSign/create?registration_id=' . $patient_id);
+            $this->Registration_model->insert_registration($data);
+
+            // Redirect to the create page in VitalSign controller with registration_id
+            redirect('VitalSign/create?registration_id=' . $patient_id);
+        }
     }
-}
 
     public function edit($id)
     {
@@ -175,40 +178,40 @@ class Registration extends CI_Controller
 
     //pagination
     public function update()
-{
-    $this->form_validation->set_rules('birthday', 'Birthday', 'required');
-    $this->form_validation->set_rules('address', 'Address', 'required');
-    $this->form_validation->set_rules('name', 'Name', 'required');
-    $this->form_validation->set_rules('lname', 'Last Name', 'required');
+    {
+        $this->form_validation->set_rules('birthday', 'Birthday', 'required');
+        $this->form_validation->set_rules('address', 'Address', 'required');
+        $this->form_validation->set_rules('name', 'Name', 'required');
+        $this->form_validation->set_rules('lname', 'Last Name', 'required');
 
-    if ($this->form_validation->run() == FALSE) {
-        $id = $this->input->post('id');
-        $data['patient'] = $this->Registration_model->get_patient_by_id($id);
-        $this->load->view('dashboard/registration', $data);
-    } else {
-        $data = array(
-            'id' => $this->input->post('id'),
-            'name' => $this->input->post('name'),
-            'mname' => $this->input->post('mname'),
-            'lname' => $this->input->post('lname'),
-            'marital_status' => $this->input->post('marital_status'),
-            'husband_phone' => $this->input->post('husband_phone'),
-            'patient_contact_no' => $this->input->post('patient_contact_no'),
-            'philhealth_id' => $this->input->post('philhealth_id'),
-            'birthday' => $this->input->post('birthday'),
-            'address' => $this->input->post('address'),
-            'age' => $this->input->post('age'),
-            'husband' => $this->input->post('husband'),
-            'occupation' => $this->input->post('occupation'),
-            'last_update' => date('Y-m-d H:i:s'),
-			'notes' => date('Y-m-d H:i:s'),
-			'doctor' => $this->input->post('doctor')
-        );
+        if ($this->form_validation->run() == FALSE) {
+            $id = $this->input->post('id');
+            $data['patient'] = $this->Registration_model->get_patient_by_id($id);
+            $this->load->view('registration_crud/reg_edit', $data); // Corrected view path
+        } else {
+            $data = array(
+                'id' => $this->input->post('id'),
+                'name' => $this->input->post('name'),
+                'mname' => $this->input->post('mname'),
+                'lname' => $this->input->post('lname'),
+                'marital_status' => $this->input->post('marital_status'),
+                'husband_phone' => $this->input->post('husband_phone'),
+                'patient_contact_no' => $this->input->post('patient_contact_no'),
+                'philhealth_id' => $this->input->post('philhealth_id'),
+                'birthday' => $this->input->post('birthday'),
+                'address' => $this->input->post('address'),
+                'age' => $this->input->post('age'),
+                'husband' => $this->input->post('husband'),
+                'occupation' => $this->input->post('occupation'),
+                'last_update' => date('Y-m-d H:i:s'),
+                'notes' => date('Y-m-d H:i:s'),
+                'doctor' => $this->input->post('doctor')
+            );
 
-        $this->Registration_model->update_registration($data);
-        redirect('registration/patients');
+            $this->Registration_model->update_registration($data);
+            redirect('registration/patients');
+        }
     }
-}
 
     public function delete($id)
     {
@@ -239,5 +242,4 @@ class Registration extends CI_Controller
     {
         return $this->db->count_all('registration');
     }
-
 }
